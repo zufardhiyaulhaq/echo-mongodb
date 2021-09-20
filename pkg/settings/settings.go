@@ -5,9 +5,12 @@ import (
 )
 
 type Settings struct {
-	RedisEventPort string   `envconfig:"PORT"`
-	RedisCluster   bool     `envconfig:"REDIS_CLUSTER"`
-	RedisHosts     []string `envconfig:"REDIS_HOST"`
+	MongoDBEventPort string `envconfig:"PORT"`
+	MongoDBHost      string `envconfig:"MONGODB_HOST"`
+	MongoDBPort      string `envconfig:"MONGODB_PORT"`
+	MongoDBDatabase  string `envconfig:"MONGODB_DATABASE"`
+	MongoDBUser      string `envconfig:"MONGODB_USER"`
+	MongoDBPassword  string `envconfig:"MONGODB_PASSWORD"`
 }
 
 func NewSettings() (Settings, error) {

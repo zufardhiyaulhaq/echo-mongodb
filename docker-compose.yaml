@@ -3,9 +3,8 @@ services:
   echo-mongodb:
     image : mongo
     environment:
-      POSTGRES_DB: echo-mongodb
-      POSTGRES_USER: echo-mongodb
-      POSTGRES_PASSWORD: echo-mongodb
+      MONGO_INITDB_ROOT_USERNAME: echo-mongodb-admin
+      MONGO_INITDB_ROOT_PASSWORD: echo-mongodb-admin
     expose:
       - "27017"
     ports:
@@ -13,5 +12,6 @@ services:
     restart: always
     volumes:
       - echo-mongodb:/data/db
+      - ./init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
 volumes:
   echo-mongodb:

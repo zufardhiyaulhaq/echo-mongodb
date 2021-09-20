@@ -1,5 +1,5 @@
-# Echo Redis
-Echo server that connect to Redis server to test connectivity.
+# Echo MongoDB
+Echo server that connect to MongoDB server to test connectivity.
 
 ### Usage
 1. Run
