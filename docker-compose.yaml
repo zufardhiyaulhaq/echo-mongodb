@@ -1,0 +1,17 @@
+version: '3.9'
+services:
+  echo-mongodb:
+    image : mongo
+    environment:
+      POSTGRES_DB: echo-mongodb
+      POSTGRES_USER: echo-mongodb
+      POSTGRES_PASSWORD: echo-mongodb
+    expose:
+      - "27017"
+    ports:
+      - 27017:27017
+    restart: always
+    volumes:
+      - echo-mongodb:/data/db
+volumes:
+  echo-mongodb:
