@@ -11,6 +11,7 @@ RUN addgroup -g 10001 echo-mongodb && \
     chown echo-mongodb:0 /home/echo-mongodb && \
     chmod g=u /home/echo-mongodb && \
     chmod g=u /etc/passwd
+RUN apk add --update --no-cache alpine-sdk curl
 
 ENV USER=echo-mongodb
 USER 10001
