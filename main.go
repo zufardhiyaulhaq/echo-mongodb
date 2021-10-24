@@ -2,55 +2,40 @@ package main
 
 import (
 	"context"
+	"sync"
 
-	"github.com/tidwall/evio"
-	mongodb_client "github.com/zufardhiyaulhaq/echo-mongodb/pkg/mongodb"
+	"github.com/rs/zerolog/log"
 	"github.com/zufardhiyaulhaq/echo-mongodb/pkg/settings"
-	"github.com/zufardhiyaulhaq/echo-mongodb/pkg/types"
-	"go.mongodb.org/mongo-driver/bson/primitive"
+
+	mongodb_client "github.com/zufardhiyaulhaq/echo-mongodb/pkg/mongodb"
 )
 
 func main() {
-	var events evio.Events
-
 	settings, err := settings.NewSettings()
 	if err != nil {
 		panic(err.Error())
 	}
 
+	log.Info().Msg("creating redis client")
 	client := mongodb_client.New(context.Background(), settings)
 
-	events.Data = func(c evio.Conn, in []byte) (out []byte, action evio.Action) {
-		value := string(in)
+	wg := new(sync.WaitGroup)
+	wg.Add(2)
 
-		docID := primitive.NewObjectID()
-		echo := types.Echo{
-			ID:   docID,
-			Echo: value,
-		}
-		err := client.InsertEcho(echo)
-		if err != nil {
-			out = []byte(err.Error())
-			return
-		}
+	log.Info().Msg("starting server")
+	server := NewServer(settings, client)
 
-		getEcho, err := client.GetEcho(docID)
-		if err != nil {
-			out = []byte(err.Error())
-			return
-		}
-
-		out = []byte(getEcho.Echo)
-		return
-	}
-
-	if err := evio.Serve(events, "tcp://0.0.0.0:"+settings.MongoDBEventPort); err != nil {
-		panic(err.Error())
-	}
-
-	defer func() {
-		if err = client.Close(); err != nil {
-			panic(err)
-		}
+	go func() {
+		log.Info().Msg("starting HTTP server")
+		server.ServeHTTP()
+		wg.Done()
 	}()
+
+	go func() {
+		log.Info().Msg("starting echo server")
+		server.ServeEcho()
+		wg.Done()
+	}()
+
+	wg.Wait()
 }

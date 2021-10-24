@@ -45,11 +45,11 @@ mongodb.down:
 
 .PHONY: run
 run:
-	go run ./main.go
+	go run .
 
 .PHONY: build
 build:
-	CGO_ENABLED=0 GO111MODULE=on go build -a -ldflags '${LDFLAGS}' -o ${BIN_DIR}/echo-mongodb ./main.go
+	CGO_ENABLED=0 GO111MODULE=on go build -a -ldflags '${LDFLAGS}' -o ${BIN_DIR}/echo-mongodb .
 
 .PHONY: image.build
 image.build:

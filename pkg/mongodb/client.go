@@ -13,30 +13,36 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-type MongoDBClient struct {
+type Interface interface {
+	Close() error
+	InsertEcho(echo types.Echo) error
+	GetEcho(id primitive.ObjectID) (types.Echo, error)
+}
+
+type Client struct {
 	Context  context.Context
 	Client   *mongo.Client
 	Settings settings.Settings
 }
 
-func New(context context.Context, settings settings.Settings) MongoDBClient {
+func New(context context.Context, settings settings.Settings) Client {
 	client, err := mongo.Connect(context, options.Client().ApplyURI(fmt.Sprintf("mongodb://%s:%s@%s:%s/%s", settings.MongoDBUser, settings.MongoDBPassword, settings.MongoDBHost, settings.MongoDBPort, settings.MongoDBDatabase)))
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	return MongoDBClient{
+	return Client{
 		Context:  context,
 		Client:   client,
 		Settings: settings,
 	}
 }
 
-func (m MongoDBClient) Close() error {
+func (m Client) Close() error {
 	return m.Client.Disconnect(m.Context)
 }
 
-func (m MongoDBClient) InsertEcho(echo types.Echo) error {
+func (m Client) InsertEcho(echo types.Echo) error {
 	collection := m.Client.Database(m.Settings.MongoDBDatabase).Collection("echo")
 
 	_, err := collection.InsertOne(m.Context, echo)
@@ -47,7 +53,7 @@ func (m MongoDBClient) InsertEcho(echo types.Echo) error {
 	return nil
 }
 
-func (m MongoDBClient) GetEcho(id primitive.ObjectID) (types.Echo, error) {
+func (m Client) GetEcho(id primitive.ObjectID) (types.Echo, error) {
 	var echo types.Echo
 
 	collection := m.Client.Database(m.Settings.MongoDBDatabase).Collection("echo")
