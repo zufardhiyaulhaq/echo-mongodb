@@ -16,7 +16,7 @@ func main() {
 		panic(err.Error())
 	}
 
-	log.Info().Msg("creating redis client")
+	log.Info().Msg("creating mongodb client")
 	client := mongodb_client.New(context.Background(), settings)
 
 	wg := new(sync.WaitGroup)
@@ -28,12 +28,6 @@ func main() {
 	go func() {
 		log.Info().Msg("starting HTTP server")
 		server.ServeHTTP()
-		wg.Done()
-	}()
-
-	go func() {
-		log.Info().Msg("starting echo server")
-		server.ServeEcho()
 		wg.Done()
 	}()
 

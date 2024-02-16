@@ -5,7 +5,6 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/rs/zerolog/log"
-	"github.com/tidwall/evio"
 	"github.com/zufardhiyaulhaq/echo-mongodb/pkg/settings"
 	"github.com/zufardhiyaulhaq/echo-mongodb/pkg/types"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -22,38 +21,6 @@ func NewServer(settings settings.Settings, client mongodb_client.Interface) Serv
 	return Server{
 		settings: settings,
 		client:   client,
-	}
-}
-
-func (e Server) ServeEcho() {
-	var events evio.Events
-
-	events.Data = func(c evio.Conn, in []byte) (out []byte, action evio.Action) {
-		value := string(in)
-		docID := primitive.NewObjectID()
-		echo := types.Echo{
-			ID:   docID,
-			Echo: value,
-		}
-
-		err := e.client.InsertEcho(echo)
-		if err != nil {
-			out = []byte(err.Error())
-			return
-		}
-
-		read, err := e.client.GetEcho(docID)
-		if err != nil {
-			out = []byte(err.Error())
-			return
-		}
-
-		out = []byte(read.ID.String() + ":" + read.Echo)
-		return
-	}
-
-	if err := evio.Serve(events, "tcp://0.0.0.0:"+e.settings.EchoPort); err != nil {
-		log.Fatal().Err(err)
 	}
 }
 
